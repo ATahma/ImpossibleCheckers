@@ -14,7 +14,7 @@ class Board():
                             player2.add((i, j))
             self.player1 = Player(player1, color1)  # store player 1 positions and color
             self.player2 = Player(player2, color2)  # store player 2 positions and color
-    
+
     def __str__(self):
         '''graphical representation of checkers board'''
         color_map = {'white': '▓', 'black': '░'}
