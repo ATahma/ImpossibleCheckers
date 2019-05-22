@@ -1,20 +1,22 @@
-from Piece import Piece
+from Player import Player
 
 class Board():
-    DIM = 8
-    color_map = {'white': '░', 'black': '▓'}
-    def __init__(self, config=dict(), c1='cyan', c2='blue'):
-        self.c1, self.c2 = c1, c2
-        self.p1, self.p2 = 12, 12
-        self.states = config
+    DIM = 8  # dimensions of a standard board
+    color_map = {'white': '▓', 'black': '░'}
+
+    def __init__(self, config=dict(), color1='white', color2='black'):
         if not config:  # if configuration is empty
+            player1, player2 = [], []  # player 1 and 2 positions
             for i in range(Board.DIM):
                 for j in range(Board.DIM):
-                    if ((i % 2) == 0) ^ ((j % 2) == 1):
-                        if i < 3:
-                            self.states[Piece((i, j))] = color_map[c1]
-                        elif i > 4:
-                            self.states[Piece((i, j))] = color_map[c2]
+                    if (i % 2 == 0) ^ (j % 2 == 1):
+                        # if coord matches inital piece position
+                        if i < 3:  # piece is upper
+                            player1.append((i, j))
+                        elif i > 4:  # piece is lower
+                            player2.append((i, j))
+            self.player1 = Player(player1, color1)
+            self.player2 = Player(player2, color2)
 
     def next(self, pos, player):
         if player == 1:
@@ -25,16 +27,18 @@ class Board():
             return False
     
     def __str__(self):
-        line = '_' * 41 + '\n'
-        board = line
+        board = ''
         for i in range(Board.DIM):
             for j in range(Board.DIM):
                 board += '|'
-                if (i, j) in [p.pos for p in self.states.keys()]:
-                    board += self.states[p] + '|'
+                if (i, j) in self.player1.positions:
+                    board += Board.color_map[self.player1.color]
+                elif (i, j) in self.player2.positions:
+                    board += Board.color_map[self.player2.color]
                 else:
                     board += ' '
-            board += line + '\n'
+                if j == Board.DIM - 1:
+                    board += '|\n'
         return board
 
     def __repr__(self):
