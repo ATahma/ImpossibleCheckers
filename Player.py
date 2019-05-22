@@ -6,12 +6,17 @@ class Player():
         self.color = color
         self.positions = positions
         self.pieces = (Piece(i, self.color) for i in self.positions)
-
-    def addPiece(self, pos, color):
-        self.pieces.add(Piece(pos, color))
     
-    def removePiece(self, pos):
-        #self.pieces
+    def legalMoves(self):
+        pass
+    
+    def move(self, piece, destination):
+        pass
+    
+    def removePiece(self, piece):
+        pass
+
+    def promote(self, piece):
         pass
     
     def __repr__(self):
