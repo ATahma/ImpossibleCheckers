@@ -3,9 +3,6 @@ class Piece():
         self.pos = pos
         self.color = color
         self.state = state
-    
-    def __str__(self):
-        return str(self.color)
 
     def __repr__(self):
         if self.state == 1:

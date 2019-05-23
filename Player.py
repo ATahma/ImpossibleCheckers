@@ -2,22 +2,96 @@ from Piece import Piece
 
 class Player():
     '''keep track of piece positions and color of pieces'''
+    DIM = 8
+
     def __init__(self, positions, color):
-        self.color = color
-        self.positions = positions
-        self.pieces = (Piece(i, self.color) for i in self.positions)
-    
-    def legalMoves(self):
-        pass
-    
-    def move(self, piece, destination):
-        pass
-    
+        self.positions = positions  # set of piece positions
+        self.pieces = {i:Piece(i, color) for i in self.positions}
+        # dict of piece objects associated to position
+
+    def legalMoves(self, other, direction):
+        '''generator of all legal moves'''
+        for i, j in self.positions:
+            if self.pieces[(i, j)].state == 2:  # piece is promoted
+                rows = (i - 1, i + 1)  # check above and below
+            elif direction == 'down':
+                rows = (i + 1,)  # check below
+            elif direction == 'up':
+                rows = (i - 1,)  # check above
+            else:
+                raise('No direction specified')
+            l_col, r_col = j - 1, j + 1
+            for next_row in rows:  # check up, down, or both
+                for next_col in (l_col, r_col):  # check left and right
+                    try:
+                        assert 0 < next_row < Player.DIM
+                        assert 0 < next_col < Player.DIM  # move square exists
+                        assert (next_row, next_col) not in self.positions
+                        assert (next_row, next_col) not in other.positions
+                        # destination space is not occupied
+                        yield (self.pieces[(i, j)], (next_row, next_col))
+                    except:
+                        pass
+
+    def legalCaptures(self, other, direction):
+        '''generator of all legal captures'''
+        for i, j in self.positions:
+            if self.pieces[(i, j)].state == 2:  # piece is promoted
+                rows, rows2 = (i - 1, i - 2), (i + 1, i + 2)  # check above and below
+            elif direction == 'down':
+                rows, rows2 = (i + 1, -1), (i + 2, -1)  # check below (-1 is filler)
+            elif direction == 'up':
+                rows, rows2 = (i - 1, -1), (i + 2, -1)  # check above (-1 is filler)
+            else:
+                raise('No direction specified: down = player1, up = player2')
+            l_col, l_col2, r_col, r_col2 = j - 1, j - 2, j + 1, j + 2
+            for next_row, next_row2 in rows, rows2:
+                for next_col in (l_col, r_col):
+                    for next_col2 in (l_col2, r_col2):  # check left and right
+                        try:
+                            assert 0 < next_row2 < Player.DIM
+                            assert 0 < next_col2 < Player.DIM  # move square exists
+                            assert (next_row, next_col) not in self.positions
+                            assert (next_row, next_col) in other.positions
+                            assert (next_row2, next_col2) not in self.positions
+                            assert (next_row2, next_col2) not in other.positions
+                            # intermediate space is occupied by enemy piece, not by friendly
+                            # destination space is not occupied
+                            yield (self.pieces[(i, j)], (next_row2, next_col2))
+                        except:
+                            pass
+
+    def isLegalMove(self, other, piece, destination):
+        i, j = destination[0], destination[1]
+        if not (0, 0) < (i, j) < (Player.DIM, Player.DIM):
+            return False
+        surround = {(x, y) for x in (i - 1, i + 1) for y in (j - 1, j + 1)}
+        if (i, j) not in surround:
+            return False
+        elif self.pieces[(i, j)] in self.positions:
+            return False
+        elif self.pieces[(i, j)] in other.positions:
+            return False
+        return True
+
+    def isLegalCapture(self, piece, destination):
+        i, j = destination[0], destination[1]
+        if not (0, 0) < (i, j) < (Player.DIM, Player.DIM):
+            return False
+        
+        return True
+
+    def move(self, other, piece, destination):
+        if self.isLegalMove(piece, destination):
+            self.positions.remove(piece.pos)
+            self.pieces[piece.pos] = destination
+            self.positions.add(destination)
+
     def removePiece(self, piece):
         pass
 
     def promote(self, piece):
         pass
-    
+
     def __repr__(self):
-        return 'Player({}, {})'.format(set(self.pieces), self.color)
+        return 'Player({}, {})'.format(self.positions, self.color)
