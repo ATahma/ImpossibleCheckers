@@ -61,37 +61,53 @@ class Player():
                         except:
                             pass
 
-    def isLegalMove(self, other, piece, destination):
-        i, j = destination[0], destination[1]
-        if not (0, 0) < (i, j) < (Player.DIM, Player.DIM):
+    def isLegalMove(self, other, piece, destination):  # drastically inefficient
+        '''check if a move is legal'''
+        if destination[0] < piece.pos[0]:
+            direction = 'up'
+        elif destination[0] > piece.pos[0]:
+            direction = 'down'
+        else:
             return False
-        surround = {(x, y) for x in (i - 1, i + 1) for y in (j - 1, j + 1)}
-        if (i, j) not in surround:
-            return False
-        elif self.pieces[(i, j)] in self.positions:
-            return False
-        elif self.pieces[(i, j)] in other.positions:
-            return False
-        return True
+        if (piece.pos, destination) in self.legalMoves(other, piece, direction):
+            return True
+        return False
 
-    def isLegalCapture(self, piece, destination):
-        i, j = destination[0], destination[1]
-        if not (0, 0) < (i, j) < (Player.DIM, Player.DIM):
+    def isLegalCapture(self, other, piece, destination):  # drastically inefficient
+        '''check if a capture is legal'''
+        if destination[0] < piece.pos[0]:
+            direction = 'up'
+        elif destination[0] > piece.pos[0]:
+            direction = 'down'
+        else:
             return False
-        
-        return True
+        if (piece.pos, destination) in self.legalMoves(other, piece, direction):
+            return True
+        return False
 
     def move(self, other, piece, destination):
-        if self.isLegalMove(piece, destination):
+        if self.isLegalMove(other, piece, destination):
             self.positions.remove(piece.pos)
             self.pieces[piece.pos] = destination
             self.positions.add(destination)
+        else:
+            raise('Illegal move')
 
     def removePiece(self, piece):
-        pass
+        self.positions.remove(piece.pos)
+        self.pieces.pop(piece.pos)
+
+    def capture(self, other, piece, destination):
+        if self.isLegalCapture(other, piece, destination):
+            self.positions.remove(piece.pos)
+            inter_x = piece.pos[0] + destination[0] // 2
+            inter_y = piece.pos[1] + destination[1] // 2
+            other.removePiece(other.pieces[(inter_x, inter_y)])
+            self.pieces[piece.pos] = destination
+            self.positions.add(destination)
 
     def promote(self, piece):
-        pass
+        self.pieces[piece.pos].state = 2
 
     def __repr__(self):
         return 'Player({}, {})'.format(self.positions, self.color)
