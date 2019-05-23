@@ -45,8 +45,24 @@ class Board():
 if __name__ == '__main__':
     B = Board()
     print(B)
-    #print(B.__repr__())
-    print(*[i for i in B.player1.legalMoves(B.player2, 'down')], sep='\n')
-    #print(*[i for i in B.player2.legalMoves(B.player1, 'up')], sep='\n')
-    print(*[i for i in B.player1.legalCaptures(B.player2, 'down')], sep='\n')
-    print(*[i for i in B.player2.legalCaptures(B.player1, 'up')], sep='\n')
+    from random import choice
+    p1 = B.player1
+    p2 = B.player2
+    for i in range(10):
+        print('set', i)
+        move_p1 = choice([i for i in p1.legalMoves(p2, 'down')])
+        p1.move(p2, move_p1[0], move_p1[1])
+        print(B)
+        move_p2 = choice([i for i in p2.legalMoves(p1, 'up')])
+        p2.move(p1, move_p2[0], move_p2[1])
+        print(B)
+        captures_p1 = [i for i in p1.legalCaptures(p2, 'down')]
+        if captures_p1:
+            capture_p1 = choice(captures_p1)
+            p1.capture(p2, capture_p1[0], capture_p1[1])
+            print('p1 captured')
+        captures_p2 = [i for i in p2.legalCaptures(p1, 'up')]
+        if captures_p2:
+            capture_p2 = choice(captures_p2)
+            p2.capture(p1, capture_p2[0], capture_p2[1])
+            print('p2 captured')
