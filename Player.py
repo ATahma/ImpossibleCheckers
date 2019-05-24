@@ -2,22 +2,23 @@ from Piece import Piece
 
 class Player():
     '''keep track of piece positions and color of pieces'''
-    DIM = 8
+    DIM = 8  # dimensions of a standard board
 
-    def __init__(self, positions, color):
+    def __init__(self, positions, color, direction):
         self.positions = positions  # set of piece positions
         self.pieces = {i:Piece(i, color) for i in self.positions}
+        self.direction = direction
         # dict of piece objects associated to position
 
-    def legalMoves(self, other, direction):
+    def legalMoves(self, other):
         '''set of all legal moves'''
         legal_moves = set()
         for i, j in self.positions:
             if self.pieces[(i, j)].state == 2:  # piece is promoted
                 rows = (i - 1, i + 1)  # check above and below
-            elif direction == 'down':
+            elif self.direction == 'down':
                 rows = (i + 1,)  # check below
-            elif direction == 'up':
+            elif self.direction == 'up':
                 rows = (i - 1,)  # check above
             else:
                 raise('No direction specified')
@@ -34,15 +35,15 @@ class Player():
                         pass
         return legal_moves
 
-    def legalCaptures(self, other, direction):  # revise
+    def legalCaptures(self, other):
         '''set of all legal captures'''
         legal_captures = set()
         for i, j in self.positions:
             if self.pieces[(i, j)].state == 2:  # piece is promoted
                 rows = ((i - 1, i - 2), (i + 1, i + 2))  # check above and below
-            elif direction == 'down':
+            elif self.direction == 'down':
                 rows = ((i + 1, i + 2),)  # check below
-            elif direction == 'up':
+            elif self.direction == 'up':
                 rows = ((i - 1, i - 2),)  # check above
             else:
                 raise('No direction specified: down = player1, up = player2')
@@ -64,25 +65,13 @@ class Player():
 
     def isLegalMove(self, other, piece, destination):  # drastically inefficient
         '''check if a move is legal'''
-        if destination[0] < piece.pos[0]:
-            direction = 'up'
-        elif destination[0] > piece.pos[0]:
-            direction = 'down'
-        else:
-            return False
-        if (piece, destination) in self.legalMoves(other, direction):
+        if (piece, destination) in self.legalMoves(other):
             return True
         return False
 
     def isLegalCapture(self, other, piece, destination):  # drastically inefficient
         '''check if a capture is legal'''
-        if destination[0] < piece.pos[0]:
-            direction = 'up'
-        elif destination[0] > piece.pos[0]:
-            direction = 'down'
-        else:
-            return False
-        if (piece, destination) in self.legalCaptures(other, direction):
+        if (piece, destination) in self.legalCaptures(other):
             return True
         return False
 
@@ -92,6 +81,7 @@ class Player():
             del_piece = self.pieces.pop(piece.pos)
             self.pieces[destination] = Piece(destination, del_piece.color)
             self.positions.add(destination)
+            self.promote(self.pieces[destination])
             return (piece, destination)
         else:
             return False
@@ -101,6 +91,7 @@ class Player():
         self.pieces.pop(piece.pos)
 
     def capture(self, other, piece, destination):
+        '''update self and other positions for piece capture'''
         if self.isLegalCapture(other, piece, destination):
             self.positions.remove(piece.pos)
             inter_x = (piece.pos[0] + destination[0]) // 2
@@ -109,12 +100,18 @@ class Player():
             del_piece = self.pieces.pop(piece.pos)
             self.pieces[destination] = Piece(destination, del_piece.color)
             self.positions.add(destination)
+            self.promote(self.pieces[destination])
             return (piece, destination)
         else:
             return False
 
     def promote(self, piece):
-        self.pieces[piece.pos].state = 2
+        if self.direction == 'down':
+            limit = 7
+        elif self.direction == 'up':
+            limit = 0
+        if piece.pos[0] == limit:
+            self.pieces[piece.pos].state = 2
 
     def __repr__(self):
         return 'Player({}, {})'.format(self.positions, self.color)

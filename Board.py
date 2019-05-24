@@ -8,14 +8,14 @@ class Board():
             for i in range(Board.DIM):
                 for j in range(Board.DIM):
                     if (i % 2 == 0) ^ (j % 2 == 1):
-                        # if coord matches inital piece position
+                        # if coord matches initial piece position
                         if i < 3:  # piece is upper
                             player1.add((i, j))
                         elif i > 4:  # piece is lower
                             player2.add((i, j))
-        self.player1 = Player(player1, color1)
-        self.player2 = Player(player2, color2)
-        # store player 1 and 2 positions and color
+        self.player1 = Player(player1, color1, 'down')
+        self.player2 = Player(player2, color2, 'up')
+        # store player 1 and 2 positions and color with Player object
 
     def __str__(self):
         '''graphical representation of checkers board'''
@@ -49,23 +49,23 @@ if __name__ == '__main__':
     p1, p2 = B.player1, B.player2
     for i in range(25):  # complete 25 moves, if a capture is possible, capture
         print('Turn', i + 1)
-        captures_p1 = [i for i in p1.legalCaptures(p2, 'down')]
+        captures_p1 = [i for i in p1.legalCaptures(p2)]
         if captures_p1:
             capture_p1 = choice(captures_p1)
             capture = p1.capture(p2, capture_p1[0], capture_p1[1])
             print('capture {}\n'.format(capture))
         else:
-            move_p1 = choice([i for i in p1.legalMoves(p2, 'down')])
+            move_p1 = choice([i for i in p1.legalMoves(p2)])
             move = p1.move(p2, move_p1[0], move_p1[1])
             print('move {}\n'.format(move))
         print(B)
-        captures_p2 = [i for i in p2.legalCaptures(p1, 'up')]
+        captures_p2 = [i for i in p2.legalCaptures(p1)]
         if captures_p2:
             capture_p2 = choice(captures_p2)
             capture = p2.capture(p1, capture_p2[0], capture_p2[1])
             print('capture {}\n'.format(capture))
         else:
-            move_p2 = choice([i for i in p2.legalMoves(p1, 'up')])
+            move_p2 = choice([i for i in p2.legalMoves(p1)])
             move = p2.move(p1, move_p2[0], move_p2[1])
             print('move {}\n'.format(move))
         print(B)
