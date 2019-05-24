@@ -1,3 +1,10 @@
+'''
+Matteo Gisondi, 1730913, Samuel Park, 1732027, Ali Tahmasebi, 1730131
+Friday, May 24
+R. Vincent, instructor
+Final Project
+'''
+
 from Piece import Piece
 
 class Player():
@@ -7,8 +14,11 @@ class Player():
     def __init__(self, positions, color, direction):
         self.positions = positions  # set of piece positions
         self.pieces = {i:Piece(i, color) for i in self.positions}
-        self.direction = direction
         # dict of piece objects associated to position
+        self.direction = direction  # direction of moves
+    
+    def color(self):
+        return self.pieces[list(self.positions)[0]].color
 
     def legalMoves(self, other):
         '''set of all legal moves'''
@@ -77,11 +87,12 @@ class Player():
 
     def move(self, other, piece, destination):
         if self.isLegalMove(other, piece, destination):
-            self.positions.remove(piece.pos)
-            del_piece = self.pieces.pop(piece.pos)
-            self.pieces[destination] = Piece(destination, del_piece.color)
+            self.positions.remove(piece.pos)  # remove current position
+            del_piece = self.pieces.pop(piece.pos)  # remove current piece
+            self.pieces[destination] = Piece(destination, del_piece.color, del_piece.state)
             self.positions.add(destination)
             self.promote(self.pieces[destination])
+            # add new piece and check for promotion
             return (piece, destination)
         else:
             return False
@@ -93,14 +104,16 @@ class Player():
     def capture(self, other, piece, destination):
         '''update self and other positions for piece capture'''
         if self.isLegalCapture(other, piece, destination):
-            self.positions.remove(piece.pos)
+            self.positions.remove(piece.pos)  # remove current position
             inter_x = (piece.pos[0] + destination[0]) // 2
             inter_y = (piece.pos[1] + destination[1]) // 2
             other.removePiece(other.pieces[(inter_x, inter_y)])
-            del_piece = self.pieces.pop(piece.pos)
-            self.pieces[destination] = Piece(destination, del_piece.color)
+            # remove intermediate piece
+            del_piece = self.pieces.pop(piece.pos)  # remove current piece
+            self.pieces[destination] = Piece(destination, del_piece.color, del_piece.state)
             self.positions.add(destination)
             self.promote(self.pieces[destination])
+            # add new piece and check for promotion
             return (piece, destination)
         else:
             return False
@@ -114,4 +127,4 @@ class Player():
             self.pieces[piece.pos].state = 2
 
     def __repr__(self):
-        return 'Player({}, {})'.format(self.positions, self.color)
+        return 'Player({}, {})'.format(self.positions, self.color(), self.direction)
