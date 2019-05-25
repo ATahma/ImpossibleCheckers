@@ -16,7 +16,7 @@ class Player():
         self.pieces = {i:Piece(i, color) for i in self.positions}
         # dict of piece objects associated to position
         self.direction = direction  # direction of moves
-    
+
     def color(self):
         return self.pieces[list(self.positions)[0]].color
 
@@ -73,50 +73,35 @@ class Player():
                         pass
         return legal_captures
 
-    def isLegalMove(self, other, piece, destination):  # drastically inefficient
-        '''check if a move is legal'''
-        if (piece, destination) in self.legalMoves(other):
-            return True
-        return False
-
-    def isLegalCapture(self, other, piece, destination):  # drastically inefficient
-        '''check if a capture is legal'''
-        if (piece, destination) in self.legalCaptures(other):
-            return True
-        return False
-
     def move(self, other, piece, destination):
-        if self.isLegalMove(other, piece, destination):
-            self.positions.remove(piece.pos)  # remove current position
-            del_piece = self.pieces.pop(piece.pos)  # remove current piece
-            self.pieces[destination] = Piece(destination, del_piece.color, del_piece.state)
-            self.positions.add(destination)
-            self.promote(self.pieces[destination])
-            # add new piece and check for promotion
-            return (piece, destination)
-        else:
-            return False
+        '''update self and other positions for piece move
+        must make move based on list of legal moves'''
+        self.positions.remove(piece.pos)  # remove current position
+        del_piece = self.pieces.pop(piece.pos)  # remove current piece
+        self.pieces[destination] = Piece(destination, del_piece.color, del_piece.state)
+        self.positions.add(destination)
+        self.promote(self.pieces[destination])
+        # add new piece and check for promotion
+        return (piece, destination)
 
     def removePiece(self, piece):
         self.positions.remove(piece.pos)
         self.pieces.pop(piece.pos)
 
     def capture(self, other, piece, destination):
-        '''update self and other positions for piece capture'''
-        if self.isLegalCapture(other, piece, destination):
-            self.positions.remove(piece.pos)  # remove current position
-            inter_x = (piece.pos[0] + destination[0]) // 2
-            inter_y = (piece.pos[1] + destination[1]) // 2
-            other.removePiece(other.pieces[(inter_x, inter_y)])
-            # remove intermediate piece
-            del_piece = self.pieces.pop(piece.pos)  # remove current piece
-            self.pieces[destination] = Piece(destination, del_piece.color, del_piece.state)
-            self.positions.add(destination)
-            self.promote(self.pieces[destination])
-            # add new piece and check for promotion
-            return (piece, destination)
-        else:
-            return False
+        '''update self and other positions for piece capture
+        must capture based on list of legal captures'''
+        self.positions.remove(piece.pos)  # remove current position
+        inter_x = (piece.pos[0] + destination[0]) // 2
+        inter_y = (piece.pos[1] + destination[1]) // 2
+        other.removePiece(other.pieces[(inter_x, inter_y)])
+        # remove intermediate piece
+        del_piece = self.pieces.pop(piece.pos)  # remove current piece
+        self.pieces[destination] = Piece(destination, del_piece.color, del_piece.state)
+        self.positions.add(destination)
+        self.promote(self.pieces[destination])
+        # add new piece and check for promotion
+        return (piece, destination)
 
     def promote(self, piece):
         if self.direction == 'down':
