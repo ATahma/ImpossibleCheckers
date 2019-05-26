@@ -50,6 +50,9 @@ class Board():
             return self.player2
         elif not self.player2.positions:
             return self.player1
+    
+    def copy(self):
+        return Board(self.player1.positions, self.player2.positions)
 
     def __repr__(self):
         '''representation of Board class'''

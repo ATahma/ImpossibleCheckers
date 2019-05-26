@@ -1,0 +1,25 @@
+#Classes:
+Board - raw grid
+Pieces - color (player 1 or player 2), valid moves, king or not king
+Player - turn
+
+Board:
+Simple board, 8x8, no need to complicate life with checkerboard pattern.
+We can use string representation to build the board when the program is running.
+The board can possibly inherit the pieces class so that it has two states: piece exists in a grid spot or piece does not exist.
+For efficiency, we can ignore half the board if needed and keep them a constant since technically, only the black squares are used in checkers.
+
+Pieces:
+It's better it seems according to most programmers that coding the valid moves as a separate class.
+But it also is more complicated to do so, incorporating the valid moves to pieces is more prone to clunkiness, but it's more simple.
+So there are gonna be two types of pieces: King and Normal.
+Normal has three valid moves: move (only forward), capture, and crown.
+King has two valid moves: move (both forward and backward) and capture.
+The color is simple to encorporate as it's a two option choice, and will be an indicator if a piece can capture or not.
+
+Player:
+This can just be the trigger for whose turn it is, as well as keeping track of some information about the player like number of moves, number of captures, etc.
+
+
+#Epreuve:
+Man this shit's fucking annoying, I'll probably write it sooner or later, I can bullshit some stuff lmao.
