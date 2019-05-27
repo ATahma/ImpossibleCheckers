@@ -12,7 +12,6 @@ print(B)
 from random import choice
 p1, p2 = B.player1, B.player2  # get players
 while True:  #  if a capture is possible, capture, else move
-    print('Turn', i + 1)
     try:
         capture_p1 = choice(list(p1.legalCaptures(p2)))
         capture = p1.capture(p2, capture_p1[0], capture_p1[1])
