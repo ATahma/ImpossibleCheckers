@@ -1,7 +1,10 @@
 from Board import Board
 from Piece import Piece
 
+'''beginnings of a machine learning implementation'''
+
 def R(board, player, move_type, piece, destination):
+    '''reward function for a specific move'''
     b = board.copy()
     if player == 1:
         p = b.player1  # active player
@@ -17,7 +20,7 @@ def R(board, player, move_type, piece, destination):
         p.capture(o, piece, destination)
     else:
         raise('invalid move type', move_type)
-    
+
     winner = b.winner()
     if winner == p:
         return 0.0
