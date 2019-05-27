@@ -6,6 +6,7 @@ Final Project
 '''
 
 from Piece import Piece
+import numpy as np
 
 class Player():
     '''keep track of piece positions and color of pieces'''
@@ -16,7 +17,7 @@ class Player():
         self.pieces = {i:Piece(i, color) for i in self.positions}
         # dict of piece objects associated to position
         self.direction = direction  # direction of moves
-
+        self.crowned() # update crowned pieces
     def color(self):
         return self.pieces[list(self.positions)[0]].color
 
@@ -42,8 +43,28 @@ class Player():
                         # destination space is not occupied
                         legal_moves.add((self.pieces[(i, j)], (next_row, next_col)))
                     except:
-                        pass
+                        pass                  
         return legal_moves
+    def crowned(self):
+        """
+        Added by Ali
+        return an array of uncrowned and crowned pieces
+        as tuple in repsective orded
+        """
+        # numpy arrays fro crowned and uncrowned
+        self.crowned = []
+        self.uncrowned = []
+        for piece in self.pieces.values(): # iterate over all the pieces
+            # check state
+            if piece.state == 2:
+                # append to proper array
+                self.crowned.append(piece)
+            else:
+                self.uncrowned.append(piece)
+        # numpy acts weird when you try to append a user defined object to an array
+        # so i turn the lists into arrays at the end
+        self.crowned, self.uncrowned = np.array(self.crowned), np.array(self.uncrowned)
+        return (self.crowned.copy(), self.uncrowned.copy())
 
     def legalCaptures(self, other):
         '''set of all legal captures'''
@@ -82,11 +103,13 @@ class Player():
         self.positions.add(destination)
         self.promote(self.pieces[destination])
         # add new piece and check for promotion
+        self.crowned() # update the crowned pieces          
         return (piece, destination)
 
     def removePiece(self, piece):
         self.positions.remove(piece.pos)
         self.pieces.pop(piece.pos)
+        self.crowned() # update the crowned pieces    
 
     def capture(self, other, piece, destination):
         '''update self and other positions for piece capture
@@ -101,6 +124,7 @@ class Player():
         self.positions.add(destination)
         self.promote(self.pieces[destination])
         # add new piece and check for promotion
+        self.crowned() # update the crowned pieces      
         return (piece, destination)
 
     def promote(self, piece):
@@ -110,6 +134,6 @@ class Player():
             limit = 0
         if piece.pos[0] == limit:
             self.pieces[piece.pos].state = 2
-
+        self.crowned() # update the crowned pieces    
     def __repr__(self):
         return 'Player({}, {})'.format(self.positions, self.color(), self.direction)
